@@ -173,9 +173,15 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
-}
+  const columns = Object.keys(property).join(", ");
+  const values = Object.values(property); //we should set defaults to deal will empty fields
+  return pool.query(`
+  INSERT INTO properties (${columns})
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+  RETURNING *
+`,
+  values)
+    .then(res => res.rows[0])
+    .catch(err => console.log(err));
+};
 exports.addProperty = addProperty;
